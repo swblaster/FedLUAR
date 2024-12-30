@@ -12,8 +12,10 @@ from mpi4py import MPI
 from solvers.fedavg import FedAvg
 from solvers.fedlama import FedLAMA
 from solvers.fedluar import FedLUAR
-from model import resnet20
+from model import resnet20, wideresnet28, cnn, distilBert
 from feeders.feeder_cifar import cifar
+from feeders.feeder_agnews import agnews
+from feeders.feeder_femnist import federated_emnist
                 
 if __name__ == '__main__':
     comm = MPI.COMM_WORLD
@@ -57,6 +59,33 @@ if __name__ == '__main__':
                         num_clients = num_clients,
                         num_classes = num_classes,
                         alpha = cfg.alpha)
+    elif cfg.dataset == "femnist":
+        batch_size = cfg.femnist_config["batch_size"]
+        num_epochs = cfg.femnist_config["epochs"]
+        min_lr = cfg.femnist_config["min_lr"]
+        max_lr = cfg.femnist_config["max_lr"]
+        num_classes = cfg.femnist_config["num_classes"]
+        decays = list(cfg.femnist_config["decay"])
+        weight_decay = cfg.femnist_config["weight_decay"]
+
+        dataset = federated_emnist(batch_size = batch_size,
+                                   num_workers = cfg.num_workers,
+                                   num_clients = num_clients,
+                                   num_classes = num_classes,
+                                   active_ratio = cfg.active_ratio)
+    elif cfg.dataset == "agnews":
+        batch_size = cfg.agnews_config["batch_size"]
+        num_epochs = cfg.agnews_config["epochs"]
+        min_lr = cfg.agnews_config["min_lr"]
+        max_lr = cfg.agnews_config["max_lr"]
+        num_classes = cfg.agnews_config["num_classes"]
+        decays = list(cfg.agnews_config["decay"])
+        weight_decay = cfg.agnews_config["weight_decay"]
+
+        dataset = agnews(batch_size = batch_size,
+                             num_classes = num_classes,
+                             num_clients = num_clients,
+                             alpha = cfg.alpha)
     else:
         print ("config.py has a wrong dataset definition.\n")
         exit()
@@ -78,7 +107,13 @@ if __name__ == '__main__':
     elif cfg.dataset == "cifar100":
         for i in range (num_local_workers):
             models.append(wideresnet28(weight_decay, num_classes).build_model())
-
+    elif cfg.dataset == "femnist":
+        for i in range (num_local_workers):
+            models.append(cnn(weight_decay, num_classes).build_model())
+    elif cfg.dataset == "agnews":
+        for i in range (num_local_workers):
+            models.append(distilBert(weight_decay, dataset.sample_length, num_classes).build_model())
+    
     if cfg.optimizer == 0:
         solver = FedAvg(num_classes = num_classes,
                         num_workers = cfg.num_workers,

@@ -11,6 +11,36 @@ cifar10_config = {
     "weight_decay": 0.0001,
 }
 
+cifar100_config = {
+    "batch_size": 32,
+    "min_lr": 0.1,
+    "max_lr": 0.4,
+    "num_classes": 100,
+    "epochs": 300,
+    "decay": {150, 200},
+    "weight_decay": 0.0005,
+}
+
+femnist_config = {
+    "batch_size": 20,
+    "min_lr": 0.01,
+    "max_lr": 0.01,
+    "num_classes": 62,
+    "epochs": 200, 
+    "decay": {100, 150},
+    "weight_decay": 0.0001,
+}
+
+agnews_config = {
+    "batch_size": 128,
+    "min_lr": 0.00001,
+    "max_lr": 0.00001,
+    "num_classes": 4,
+    "epochs": 100,
+    "decay": {60, 80},
+    "weight_decay": 0.0001,
+}
+
 num_processes_per_node = 8
 dataset = "cifar10"
 average_interval = 10
