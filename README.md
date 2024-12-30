@@ -1,7 +1,7 @@
 
-# FedLAMA
+# FedLUAR
 This repository contains the S/W framework used for all the experiments in the below paper.
-'[Sunwoo Lee, Tuo Zhang, and Salman Avestimehr, Layer-wise Adaptive Model Aggregation for Scalable Federated Learning, AAAI, 2023](https://ojs.aaai.org/index.php/AAAI/article/view/26023)'
+'[Jisoo Kim, Sungmin Kang, and Sunwoo Lee, Layer-wise Update Recycling for Communication-Efficient Federated Learning]'
 
 ## Software Requirements
  * tensorflow2 (<= 2.15.1)
@@ -29,7 +29,7 @@ We will provide a few key experimental results here once the papers are publishe
 
 ## Supported Federated Learning Features
  * FedAvg
- * FedLAMA
+ * FedLUAR
 
 ## Supported Datasets
  * CIFAR-10
