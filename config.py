@@ -43,18 +43,18 @@ agnews_config = {
 
 # For LBGM
 threshold = 0.99
-
 # For PruneFL
 reconfiguration_iteration = 50
 comm = 0.7
-
 # For Feddropoutavg
 dropout_rate = 0.5
+# For FedPAQ
+quantizer_level = 10
 
 num_processes_per_node = 8
 dataset = "cifar10"
-average_interval = 10
-phi = 2
+average_interval = 20
+phi = 1
 num_workers = 32
 num_candidates = 48
 checkpoint = 0
@@ -67,8 +67,9 @@ checkpoint = 0
 4: FedDropoutavg
 5: PruneFL
 6: FedPara
+7: FedPAQ
 '''
-optimizer = 2
+optimizer = 0
 
 '''
 Federated Learning settings

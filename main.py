@@ -15,6 +15,7 @@ from solvers.fedluar import FedLUAR
 from solvers.LBGM import LBGM
 from solvers.feddropoutavg import FedDropoutAvg
 from solvers.prunefl import PruneFL
+from solvers.fedpaq import FedPAQ
 
 from model import resnet20, wideresnet28, cnn, distilBert
 from feeders.feeder_cifar import cifar
@@ -135,16 +136,22 @@ if __name__ == '__main__':
                          average_interval = cfg.average_interval)
     elif cfg.optimizer == 3:
         solver = LBGM(num_classes = num_classes,
-                        num_workers = cfg.num_workers,
-                        average_interval = cfg.average_interval)
+                      num_workers = cfg.num_workers,
+                      average_interval = cfg.average_interval)
     elif cfg.optimizer == 4:
         solver = FedDropoutAvg(num_classes = num_classes,
-                        num_workers = cfg.num_workers,
-                        average_interval = cfg.average_interval)
+                               num_workers = cfg.num_workers,
+                               average_interval = cfg.average_interval)
     elif cfg.optimizer == 5:
-        solver = FedDropoutAvg(num_classes = num_classes,
+        solver = PruneFL(num_classes = num_classes,
+                         num_workers = cfg.num_workers,
+                         average_interval = cfg.average_interval)
+    elif cfg.optimizer == 7:
+        solver = FedPAQ(model = models[0],
+                        num_classes = num_classes,
                         num_workers = cfg.num_workers,
-                        average_interval = cfg.average_interval)
+                        average_interval = cfg.average_interval,
+                        quantizer_level = cfg.quantizer_level)
     else:
         print ("Invalid optimizer option!\n")
         exit()
