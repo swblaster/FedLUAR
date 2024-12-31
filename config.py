@@ -49,7 +49,7 @@ comm = 0.7
 # For Feddropoutavg
 dropout_rate = 0.5
 # For FedPAQ
-quantizer_level = 10
+quantizer_level = 16
 
 num_processes_per_node = 8
 dataset = "cifar10"

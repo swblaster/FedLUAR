@@ -96,6 +96,7 @@ class FedPAQ:
             localsum_param = tf.math.add_n(params)
             globalsum_param = self.comm.allreduce(localsum_param, op = MPI.SUM)
             update = globalsum_param / self.num_workers
+            update = self.quantize(update)
             average_param = tf.math.add(update, self.last_t_param[i])
             for j in range (self.num_local_workers):
                 checkpoint.models[j].trainable_variables[i].assign(average_param)
@@ -113,6 +114,7 @@ class FedPAQ:
             localsum_param = tf.math.add_n(params)
             globalsum_param = self.comm.allreduce(localsum_param, op = MPI.SUM)
             update = globalsum_param / self.num_workers
+            update = self.quantize(update)
             average_param = tf.math.add(update, self.last_nt_param[i])
             for j in range (self.num_local_workers):
                 checkpoint.models[j].non_trainable_variables[i].assign(average_param)
