@@ -12,6 +12,10 @@ from mpi4py import MPI
 from solvers.fedavg import FedAvg
 from solvers.fedlama import FedLAMA
 from solvers.fedluar import FedLUAR
+from solvers.LBGM import LBGM
+from solvers.feddropoutavg import FedDropoutAvg
+from solvers.prunefl import PruneFL
+
 from model import resnet20, wideresnet28, cnn, distilBert
 from feeders.feeder_cifar import cifar
 from feeders.feeder_agnews import agnews
@@ -129,6 +133,18 @@ if __name__ == '__main__':
                          num_classes = num_classes,
                          num_workers = cfg.num_workers,
                          average_interval = cfg.average_interval)
+    elif cfg.optimizer == 3:
+        solver = LBGM(num_classes = num_classes,
+                        num_workers = cfg.num_workers,
+                        average_interval = cfg.average_interval)
+    elif cfg.optimizer == 4:
+        solver = FedDropoutAvg(num_classes = num_classes,
+                        num_workers = cfg.num_workers,
+                        average_interval = cfg.average_interval)
+    elif cfg.optimizer == 5:
+        solver = FedDropoutAvg(num_classes = num_classes,
+                        num_workers = cfg.num_workers,
+                        average_interval = cfg.average_interval)
     else:
         print ("Invalid optimizer option!\n")
         exit()

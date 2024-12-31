@@ -41,6 +41,16 @@ agnews_config = {
     "weight_decay": 0.0001,
 }
 
+# For LBGM
+threshold = 0.99
+
+# For PruneFL
+reconfiguration_iteration = 50
+comm = 0.7
+
+# For Feddropoutavg
+dropout_rate = 0.5
+
 num_processes_per_node = 8
 dataset = "cifar10"
 average_interval = 10
@@ -48,10 +58,15 @@ phi = 2
 num_workers = 32
 num_candidates = 48
 checkpoint = 0
+
 '''
 0: FedAvg
 1: FedLAMA
 2: FedLUAR
+3: LBGM
+4: FedDropoutavg
+5: PruneFL
+6: FedPara
 '''
 optimizer = 2
 

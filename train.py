@@ -8,6 +8,7 @@ import client_sampling
 from mpi4py import MPI
 from tqdm import tqdm
 from tensorflow.keras.metrics import Mean
+import config as cfg
 
 class framework:
     def __init__ (self, models, dataset, solver, **kargs):
@@ -49,6 +50,9 @@ class framework:
         self.train_datasets = []
         for i in range (self.num_clients):
             self.train_datasets.append(self.dataset.train_dataset(i))
+        
+        if cfg.optimizer == 6:
+            self.mask = [tf.ones_like(g) for g in self.checkpoint.models[0].trainable_variables]
 
         # Resume if any checkpoints are in the current directory.
         self.checkpoint.models[0].summary()
@@ -94,15 +98,46 @@ class framework:
                 train_datasets = []
                 for i in range (len(local_devices)):
                     train_datasets.append(self.train_datasets[local_devices[i]])
+            
+            # LBGM
+            if cfg.optimizer == 3:
+                lbcs = [0 for _ in range(self.num_local_workers)]
+                s_ks = [0 for _ in range(self.num_local_workers)]
+                local_losses = []
+                for local_id in tqdm(range(self.num_local_workers), ascii=True):
+                    local_loss,lbp, dot_product, squarenorm_LBG  = self.solver.round(epoch_id, self.checkpoint.models, train_datasets, local_id)
+                    # Checking the LBP error
+                    if lbp <= cfg.threshold and epoch_id > 0:
+                        s_ks[local_id] = 1
+                        # Calculate LBC
+                        lbc = dot_product / squarenorm_LBG
+                        lbcs[local_id] = lbc
+                        
+                        print(f"\nprocess {self.rank}'s {local_id} worker sends LBC to server: {lbcs[local_id]}")
+                    local_losses.append(local_loss.result().numpy())
 
-            # Training loop.
-            local_losses = []
-            for local_id in tqdm(range(self.num_local_workers), ascii=True):
-                local_loss = self.solver.round(epoch_id, self.checkpoint.models, train_datasets, local_id)
-                local_losses.append(local_loss.result().numpy())
+                # Average the local updates and apply it to the global model.
+                self.solver.average_model(self.checkpoint, epoch_id, s_ks, lbcs)
 
-            # Average the local updates and apply it to the global model.
-            self.solver.average_model(self.checkpoint, epoch_id)
+            # PruneFL
+            elif cfg.optimizer == 5:
+                local_losses = []
+                
+                for local_id in tqdm(range(self.num_local_workers), ascii=True):
+                    local_loss = self.solver.round(epoch_id, self.checkpoint.models, train_datasets, local_id, self.mask)
+                    local_losses.append(local_loss.result().numpy())
+
+                # Average the local updates and apply it to the global model.
+                self.mask = self.solver.average_model(self.checkpoint, epoch_id)
+
+            else:
+                local_losses = []
+                for local_id in tqdm(range(self.num_local_workers), ascii=True):
+                    local_loss = self.solver.round(epoch_id, self.checkpoint.models, train_datasets, local_id)
+                    local_losses.append(local_loss.result().numpy())
+
+                # Average the local updates and apply it to the global model.
+                self.solver.average_model(self.checkpoint, epoch_id)
 
             # Collect the global training results (loss and accuracy).
             global_loss = self.comm.allreduce(sum(local_losses), op = MPI.SUM) / self.num_workers
