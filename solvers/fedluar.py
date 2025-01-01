@@ -130,7 +130,7 @@ class FedLUAR:
             if self.rank == 0:
                 f = open("weight.txt", "w")
                 for i in range (len(weight)):
-                    f.write("%2d: %f %s\n" %(i, weight[i], str(checkpoint.models[0].trainable_variables[self.kernels[i]])))
+                    f.write("%2d: %f %s\n" %(i, weight[i], str(checkpoint.models[0].trainable_variables[self.kernels[i]].shape)))
                 f.close()
 
                 total = 0
