@@ -17,7 +17,7 @@ class FedLUAR:
         self.average_interval = average_interval
 
         # Recycle score.
-        self.num_recycling_layers = 16
+        self.num_recycling_layers = 12
         self.recycling_layers = []
         self.prev_params = []
         self.prev_updates = []
@@ -92,7 +92,6 @@ class FedLUAR:
                     self.score[offset] = np.linalg.norm(self.prev_updates[i].flatten()) / (np.linalg.norm(self.prev_params[i].flatten()) + 1e-6)
                 else: # recycle
                     new_param = np.add(self.prev_params[i], self.prev_updates[i])
-                    new_param = self.prev_params[i]
 
                 for j in range (self.num_local_workers):
                     checkpoint.models[j].trainable_variables[i].assign(new_param)
@@ -103,7 +102,6 @@ class FedLUAR:
                 for j in range (self.num_local_workers):
                     local_params.append(checkpoint.models[j].trainable_variables[i])
                 local_params_sum = tf.math.add_n(local_params)
-
                 global_param = self.comm.allreduce(local_params_sum, op = MPI.SUM) / self.num_workers
                 for j in range (self.num_local_workers):
                     checkpoint.models[j].trainable_variables[i].assign(global_param)
@@ -117,7 +115,6 @@ class FedLUAR:
             for j in range (self.num_local_workers):
                 local_params.append(checkpoint.models[j].non_trainable_variables[i])
             local_params_sum = tf.math.add_n(local_params)
-
             global_param = self.comm.allreduce(local_params_sum, op = MPI.SUM) / self.num_workers
             for j in range (self.num_local_workers):
                 checkpoint.models[j].non_trainable_variables[i].assign(global_param)
@@ -130,3 +127,16 @@ class FedLUAR:
             self.recycling_layers = self.kernels[np.array(self.comm.bcast(self.recycling_layers, root = 0))]
             index = np.delete(np.arange(len(self.num_comms)), self.recycling_layers)
             self.num_comms[index] += 1
+            if self.rank == 0:
+                f = open("weight.txt", "w")
+                for i in range (len(weight)):
+                    f.write("%2d: %f %s\n" %(i, weight[i], str(checkpoint.models[0].trainable_variables[self.kernels[i]])))
+                f.close()
+
+                total = 0
+                max_cost = 0
+                for i in range (len(checkpoint.models[0].trainable_variables)):
+                    max_cost += ((epoch_id + 1) * self.num_params[i])
+                    total += (self.num_comms[i] * self.num_params[i])
+                cost = total * 100 / (max_cost + 1e-6)
+                print ("comm: %f percent\n" %(cost))
