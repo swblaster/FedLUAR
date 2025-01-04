@@ -16,8 +16,14 @@ from solvers.LBGM import LBGM
 from solvers.feddropoutavg import FedDropoutAvg
 from solvers.prunefl import PruneFL
 from solvers.fedpaq import FedPAQ
-
-from model import resnet20, wideresnet28, cnn, distilBert
+from solvers.feddyn import FedDyn
+from solvers.fedopt import FedOpt
+from solvers.fedprox import FedProx
+from solvers.fedmut import FedMut
+from solvers.moon import Moon
+from solvers.fedpara import FedPara
+from solvers.fedpaq_luar import FedPAQ_LUAR
+from model import resnet20, wideresnet28, cnn, distilBert, distilBertLowRank, resnet20_para, cnn_para, WideResNet28_para
 from feeders.feeder_cifar import cifar
 from feeders.feeder_agnews import agnews
 from feeders.feeder_femnist import federated_emnist
@@ -106,16 +112,16 @@ if __name__ == '__main__':
 
     num_local_workers = cfg.num_workers // size
     models = []
-    if cfg.dataset == "cifar10":
+    if cfg.dataset == "cifar10" and cfg.optimizer != 6:
         for i in range (num_local_workers):
             models.append(resnet20(weight_decay, num_classes).build_model())
-    elif cfg.dataset == "cifar100":
+    elif cfg.dataset == "cifar100" and cfg.optimizer != 6:
         for i in range (num_local_workers):
             models.append(wideresnet28(weight_decay, num_classes).build_model())
-    elif cfg.dataset == "femnist":
+    elif cfg.dataset == "femnist" and cfg.optimizer != 6:
         for i in range (num_local_workers):
             models.append(cnn(weight_decay, num_classes).build_model())
-    elif cfg.dataset == "agnews":
+    elif cfg.dataset == "agnews" and cfg.optimizer != 6:
         for i in range (num_local_workers):
             models.append(distilBert(weight_decay, dataset.sample_length, num_classes).build_model())
     
@@ -146,12 +152,46 @@ if __name__ == '__main__':
         solver = PruneFL(num_classes = num_classes,
                          num_workers = cfg.num_workers,
                          average_interval = cfg.average_interval)
+    elif cfg.optimizer == 6:
+        solver = FedPara(num_classes = num_classes,
+                         num_workers = cfg.num_workers,
+                         average_interval = cfg.average_interval)             
     elif cfg.optimizer == 7:
         solver = FedPAQ(model = models[0],
                         num_classes = num_classes,
                         num_workers = cfg.num_workers,
                         average_interval = cfg.average_interval,
                         quantizer_level = cfg.quantizer_level)
+    elif cfg.optimizer == 8:
+        solver = FedPAQ_LUAR(model = models[0],
+                        num_classes = num_classes,
+                        num_workers = cfg.num_workers,
+                        average_interval = cfg.average_interval,
+                        quantizer_level = cfg.quantizer_level)
+    elif cfg.optimizer == 9:
+        solver = FedDyn(num_classes = num_classes,
+                        num_workers = cfg.num_workers,
+                        average_interval = cfg.average_interval) 
+    elif cfg.optimizer == 10:
+        solver = FedOpt(model = models[0],
+                        num_classes = num_classes,
+                        num_workers = cfg.num_workers,
+                        average_interval = cfg.average_interval)
+    elif cfg.optimizer == 11:
+        solver = FedProx(num_classes = num_classes,
+                        num_workers = cfg.num_workers,
+                        average_interval = cfg.average_interval,
+                        mu=cfg.mu)   
+    elif cfg.optimizer == 12:
+        solver = FedMut(model = models[0],
+                        num_classes = num_classes,
+                        num_workers = cfg.num_workers,
+                        average_interval = cfg.average_interval)
+    elif cfg.optimizer == 13:
+        solver = Moon(model = models[0],
+                        num_classes = num_classes,
+                        num_workers = cfg.num_workers,
+                        average_interval = cfg.average_interval)          
     else:
         print ("Invalid optimizer option!\n")
         exit()
