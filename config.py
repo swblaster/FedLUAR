@@ -41,18 +41,30 @@ agnews_config = {
     "weight_decay": 0.0001,
 }
 
+# For Fedpara
+low_rank_ratio = 0.2
+
 # For LBGM
 threshold = 0.99
+
 # For PruneFL
 reconfiguration_iteration = 50
 comm = 0.7
+
 # For Feddropoutavg
 dropout_rate = 0.5
+
 # For FedPAQ
-quantizer_level = 16
+quantizer_level = 8
+
+# For FedLUAR
+reuse_layer = 30
+
+# For FedProx
+mu = 0.001
 
 num_processes_per_node = 8
-dataset = "cifar10"
+dataset = "agnews"
 average_interval = 20
 phi = 1
 num_workers = 32
@@ -60,7 +72,7 @@ num_candidates = 48
 checkpoint = 0
 
 '''
-0: FedAvg
+0: FedAvg11
 1: FedLAMA
 2: FedLUAR
 3: LBGM
@@ -68,8 +80,14 @@ checkpoint = 0
 5: PruneFL
 6: FedPara
 7: FedPAQ
+8: FedPAQ + FedLUAR
+9: FedDyn
+10: FedOpt
+11: FedProx
+12: FedMut
+13: Moon
 '''
-optimizer = 0
+optimizer = 2
 
 '''
 Federated Learning settings
