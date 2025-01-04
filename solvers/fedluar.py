@@ -5,7 +5,6 @@ import time
 import tensorflow as tf
 from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.metrics import Mean
-import config as cfg
 
 class FedLUAR:
     def __init__ (self, model, num_classes, num_workers, average_interval):
@@ -18,7 +17,7 @@ class FedLUAR:
         self.average_interval = average_interval
 
         # Recycle score.
-        self.num_recycling_layers = cfg.reuse_layer
+        self.num_recycling_layers = 12
         self.recycling_layers = []
         self.prev_params = []
         self.prev_updates = []
@@ -33,7 +32,7 @@ class FedLUAR:
         if self.num_classes == 1:
             self.loss_object = tf.keras.losses.BinaryCrossentropy(from_logits=True)
         else:
-            self.loss_object = tf.keras.losses.CategoricalCrossentropy(from_logits=False)
+            self.loss_object = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
         if self.rank == 0:
             print ("FedLUAR solver!")
 
@@ -77,7 +76,7 @@ class FedLUAR:
         optimizer.apply_gradients(zip(grads, model.trainable_variables))
         return loss, grads
 
-    def average_model (self, checkpoint, epoch_id, num_comms):
+    def average_model (self, checkpoint, epoch_id):
         # Receive the updates of the active layers.
         offset = 0
         for i in range (len(checkpoint.models[0].trainable_variables)):
@@ -91,7 +90,6 @@ class FedLUAR:
 
                     self.prev_updates[i] = np.subtract(new_param, self.prev_params[i])
                     self.score[offset] = np.linalg.norm(self.prev_updates[i].flatten()) / (np.linalg.norm(self.prev_params[i].flatten()) + 1e-6)
-                    num_comms[i] += 1
                 else: # recycle
                     new_param = np.add(self.prev_params[i], self.prev_updates[i])
 
@@ -99,12 +97,11 @@ class FedLUAR:
                     checkpoint.models[j].trainable_variables[i].assign(new_param)
                 self.prev_params[i] = new_param
                 offset += 1
-
             else:
                 local_params = []
                 for j in range (self.num_local_workers):
                     local_params.append(checkpoint.models[j].trainable_variables[i])
-                local_params_sum = tf.math.add_n(local_params)       
+                local_params_sum = tf.math.add_n(local_params)
                 global_param = self.comm.allreduce(local_params_sum, op = MPI.SUM) / self.num_workers
                 for j in range (self.num_local_workers):
                     checkpoint.models[j].trainable_variables[i].assign(global_param)
@@ -118,7 +115,6 @@ class FedLUAR:
             for j in range (self.num_local_workers):
                 local_params.append(checkpoint.models[j].non_trainable_variables[i])
             local_params_sum = tf.math.add_n(local_params)
-
             global_param = self.comm.allreduce(local_params_sum, op = MPI.SUM) / self.num_workers
             for j in range (self.num_local_workers):
                 checkpoint.models[j].non_trainable_variables[i].assign(global_param)
@@ -131,26 +127,16 @@ class FedLUAR:
             self.recycling_layers = self.kernels[np.array(self.comm.bcast(self.recycling_layers, root = 0))]
             index = np.delete(np.arange(len(self.num_comms)), self.recycling_layers)
             self.num_comms[index] += 1
+            if self.rank == 0:
+                f = open("weight.txt", "w")
+                for i in range (len(weight)):
+                    f.write("%2d: %f %s\n" %(i, weight[i], str(checkpoint.models[0].trainable_variables[self.kernels[i]].shape)))
+                f.close()
 
-    def count_comms (self, checkpoint, num_epochs, num_comms):
-        params = checkpoint.models[0].trainable_variables
-        total_size = 0
-        actual_size = 0
-        for i in range (len(params)):
-            param = params[i]
-            size = np.prod(param.shape)
-            actual_size += num_comms[i] / num_epochs * size
-            total_size += size
-        cost = actual_size / total_size
-
-        if self.rank == 0:
-            f = open(f"num_comms({cfg.optimizer} {cfg.dataset} {cfg.reuse_layer}).txt", "a")
-            for i in range (len(num_comms)):
-                if len(params[i].shape) > 1:
-                    f.write("%3d: %d\n" %(i, num_comms[i]))
-            f.close()
-
-            f = open(f"comm_cost({cfg.optimizer} {cfg.dataset} {cfg.reuse_layer}).txt", "a")
-            f.write("actual: %f total: %f cost: %f\n" %(actual_size, total_size, cost))
-            f.close()
-            print("record complete")
+                total = 0
+                max_cost = 0
+                for i in range (len(checkpoint.models[0].trainable_variables)):
+                    max_cost += ((epoch_id + 1) * self.num_params[i])
+                    total += (self.num_comms[i] * self.num_params[i])
+                cost = total * 100 / (max_cost + 1e-6)
+                print ("comm: %f percent\n" %(cost))

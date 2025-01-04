@@ -267,7 +267,8 @@ class cnn ():
           "classes": tf.argmax(input=logits, axis=1),
           "probabilities": tf.nn.softmax(logits, name="softmax_tensor")
         }
-        y = predictions["probabilities"]
+        #y = predictions["probabilities"]
+        y = logits
         return Model(x_in, y, name = "cnn")
     
 # FedPARA

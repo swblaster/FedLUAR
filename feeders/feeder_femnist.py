@@ -20,7 +20,7 @@ class federated_emnist:
         num_local_devices_per_client = 1
 
         # Read the training data.
-        base_path = "../lmls-fl/leaf/data/femnist/data/train/"
+        base_path = "leaf/data/femnist/data/train/"
         num_loaded_clients = 0
         x = []
         y = []
@@ -60,7 +60,7 @@ class federated_emnist:
         self.epoch_length = int(self.num_local_train_samples / self.train_batch_size)
 
         # Read the validation(test) data.
-        base_path = "../lmls-fl/leaf/data/femnist/data/test/"
+        base_path = "leaf/data/femnist/data/test/"
         num_loaded_clients = 0
         x = []
         y = []
