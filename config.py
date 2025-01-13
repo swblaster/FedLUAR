@@ -2,7 +2,7 @@
 Dataset-specific hyper-parameters.
 '''
 cifar10_config = {
-    "batch_size": 64,
+    "batch_size": 32,
     "min_lr": 0.2,
     "max_lr": 0.2,
     "num_classes": 10,
@@ -12,7 +12,7 @@ cifar10_config = {
 }
 
 cifar100_config = {
-    "batch_size": 64,
+    "batch_size": 32,
     "min_lr": 0.1,
     "max_lr": 0.4,
     "num_classes": 100,
