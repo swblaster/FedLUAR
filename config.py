@@ -2,7 +2,7 @@
 Dataset-specific hyper-parameters.
 '''
 cifar10_config = {
-    "batch_size": 32,
+    "batch_size": 64,
     "min_lr": 0.2,
     "max_lr": 0.2,
     "num_classes": 10,
@@ -12,7 +12,7 @@ cifar10_config = {
 }
 
 cifar100_config = {
-    "batch_size": 32,
+    "batch_size": 64,
     "min_lr": 0.1,
     "max_lr": 0.4,
     "num_classes": 100,
@@ -52,19 +52,19 @@ reconfiguration_iteration = 50
 comm = 0.7
 
 # For Feddropoutavg
-dropout_rate = 0.5
+dropout_rate = 0.75
 
 # For FedPAQ
-quantizer_level = 8
+quantizer_level = 16
 
 # For FedLUAR
-reuse_layer = 30
+reuse_layer = 10
 
 # For FedProx
 mu = 0.001
 
 num_processes_per_node = 8
-dataset = "agnews"
+dataset = "cifar10"
 average_interval = 20
 phi = 1
 num_workers = 32
@@ -72,7 +72,7 @@ num_candidates = 48
 checkpoint = 0
 
 '''
-0: FedAvg11
+0: FedAvg
 1: FedLAMA
 2: FedLUAR
 3: LBGM
@@ -86,6 +86,7 @@ checkpoint = 0
 11: FedProx
 12: FedMut
 13: Moon
+14: FedACG
 '''
 optimizer = 2
 
@@ -96,3 +97,5 @@ Federated Learning settings
 '''
 active_ratio = 0.25
 alpha = 0.1
+
+# while pgrep -f "mpirun -n 2 python3 main.py" > /dev/null; do sleep 1; done && mpirun -n 2 python3 main.py

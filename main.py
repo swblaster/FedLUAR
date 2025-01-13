@@ -23,7 +23,8 @@ from solvers.fedmut import FedMut
 from solvers.moon import Moon
 from solvers.fedpara import FedPara
 from solvers.fedpaq_luar import FedPAQ_LUAR
-from model import resnet20, wideresnet28, cnn, distilBert, distilBertLowRank, resnet20_para, cnn_para, WideResNet28_para
+from solvers.fedacg import FedACG
+from model import resnet20, wideresnet28, cnn, distilBert, distilBertLowRank, resnet20_para, cnn_para, WideResNet28_paraf
 from feeders.feeder_cifar import cifar
 from feeders.feeder_agnews import agnews
 from feeders.feeder_femnist import federated_emnist
@@ -192,6 +193,12 @@ if __name__ == '__main__':
                         num_classes = num_classes,
                         num_workers = cfg.num_workers,
                         average_interval = cfg.average_interval)          
+    elif cfg.optimizer == 14:
+        solver = FedACG(model = models[0],
+                        num_classes = num_classes,
+                        num_workers = cfg.num_workers,
+                        average_interval = cfg.average_interval)          
+    
     else:
         print ("Invalid optimizer option!\n")
         exit()
