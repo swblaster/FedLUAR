@@ -20,9 +20,6 @@ class FedACG:
         '''
         the performance of FedACG
         remains stable in a range of  values from 0.75 to 0.9. 
-
-        0.75: 65.02
-        0.8: 
         '''
         self.global_momentum = [tf.zeros_like(w) for w in model.trainable_variables]
         self.beta =  0.01
@@ -67,9 +64,7 @@ class FedACG:
         with tf.GradientTape() as tape:
             prediction = model(data, training = True)
             loss = self.cross_entropy_batch(label, prediction)
-            #regularization_losses = model.losses
-            #total_loss = tf.add_n(regularization_losses + [loss])
-            
+                        
             quadratic_term = (self.beta / 2) * tf.add_n([
             tf.norm(model.trainable_variables[i] - self.last_param[i]) ** 2 for i in range(len(model.trainable_variables))
             ])
