@@ -24,7 +24,7 @@ from solvers.moon import Moon
 from solvers.fedpara import FedPara
 from solvers.fedpaq_luar import FedPAQ_LUAR
 from solvers.fedacg import FedACG
-from model import resnet20, wideresnet28, cnn, distilBert, distilBertLowRank, resnet20_para, cnn_para, WideResNet28_paraf
+from model import resnet20, wideresnet28, cnn, distilBert, distilBertLowRank, resnet20_para, cnn_para, WideResNet28_para
 from feeders.feeder_cifar import cifar
 from feeders.feeder_agnews import agnews
 from feeders.feeder_femnist import federated_emnist
