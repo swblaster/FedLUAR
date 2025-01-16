@@ -54,10 +54,14 @@ class framework:
         if cfg.optimizer == 6:
             self.mask = [tf.ones_like(g) for g in self.checkpoint.models[0].trainable_variables]
 
+        # For calculate comm cost
+        num_params = len(self.checkpoint.models[0].trainable_variables) 
+        self.num_comms = np.zeros(num_params)
+
         # Resume if any checkpoints are in the current directory.
         self.checkpoint.models[0].summary()
         self.resume()
-
+        
     def resume (self):
         self.epoch_id = 0
         if self.checkpoint_manager.latest_checkpoint:
@@ -130,6 +134,17 @@ class framework:
                 # Average the local updates and apply it to the global model.
                 self.mask = self.solver.average_model(self.checkpoint, epoch_id)
 
+            # FL methods with LUAR
+            elif cfg.optimizer in (13, 14, 15, 16, 17, 18):
+
+                local_losses = []
+                for local_id in tqdm(range(self.num_local_workers), ascii=True):
+                    local_loss = self.solver.round(epoch_id, self.checkpoint.models, train_datasets, local_id)
+                    local_losses.append(local_loss.result().numpy())
+
+                # Average the local updates and apply it to the global model.
+                self.solver.average_model(self.checkpoint, epoch_id, self.num_comms)
+
             else:
                 local_losses = []
                 for local_id in tqdm(range(self.num_local_workers), ascii=True):
@@ -156,12 +171,14 @@ class framework:
                        " lr: " + str(self.checkpoint.optimizers[0].lr.numpy()) +
                        " validation acc = " + str(global_acc) +
                        " training loss = " + str(global_loss))
-                f = open("acc.txt", "a")
+                f = open(f"acc({cfg.optimizer}).txt", "a")
                 f.write(str(global_acc) + "\n")
                 f.close()
-                f = open("loss.txt", "a")
+                f = open(f"loss({cfg.optimizer}).txt", "a")
                 f.write(str(global_loss) + "\n")
                 f.close()
+
+        self.solver.count_comms(self.checkpoint, self.num_epochs, self.num_comms)
 
     def evaluate (self):
         valid_dataset = self.dataset.valid_dataset()

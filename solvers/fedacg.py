@@ -4,6 +4,7 @@ import math
 import tensorflow as tf
 from tensorflow.keras.optimizers import SGD, Adam
 from tensorflow.keras.metrics import Mean
+import config as cfg
 
 class FedACG:
     def __init__ (self, model, num_classes, num_workers, average_interval):
@@ -16,7 +17,7 @@ class FedACG:
         self.average_interval = average_interval
         self.last_param = []
 
-        self.momentum_term = 0.8
+        self.momentum_term = cfg.momentum_term
         '''
         the performance of FedACG
         remains stable in a range of  values from 0.75 to 0.9. 

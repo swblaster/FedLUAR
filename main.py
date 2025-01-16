@@ -16,7 +16,6 @@ from solvers.LBGM import LBGM
 from solvers.feddropoutavg import FedDropoutAvg
 from solvers.prunefl import PruneFL
 from solvers.fedpaq import FedPAQ
-from solvers.feddyn import FedDyn
 from solvers.fedopt import FedOpt
 from solvers.fedprox import FedProx
 from solvers.fedmut import FedMut
@@ -24,6 +23,11 @@ from solvers.moon import Moon
 from solvers.fedpara import FedPara
 from solvers.fedpaq_luar import FedPAQ_LUAR
 from solvers.fedacg import FedACG
+from solvers.fedopt_luar import FedOpt_LUAR
+from solvers.fedprox_luar import FedProx_LUAR
+from solvers.fedmut_luar import FedMUT_LUAR
+from solvers.moon_luar import Moon_LUAR
+from solvers.fedacg_luar import FedACG_LUAR
 from model import resnet20, wideresnet28, cnn, distilBert, distilBertLowRank, resnet20_para, cnn_para, WideResNet28_para
 from feeders.feeder_cifar import cifar
 from feeders.feeder_agnews import agnews
@@ -35,7 +39,8 @@ if __name__ == '__main__':
     size = comm.Get_size()
     gpus = tf.config.experimental.list_physical_devices('GPU')
     local_rank = rank % len(gpus)
-
+    low_rank_ratios = cfg.low_rank_ratio
+    
     for gpu in gpus:
         tf.config.experimental.set_memory_growth(gpu, True)
     if gpus:
@@ -154,6 +159,17 @@ if __name__ == '__main__':
                          num_workers = cfg.num_workers,
                          average_interval = cfg.average_interval)
     elif cfg.optimizer == 6:
+        models = []
+        if cfg.dataset == "cifar10":
+            for i in range (num_local_workers):
+                models.append(resnet20_para(weight_decay, num_classes, low_rank_ratios).build_model())
+        elif cfg.dataset == "femnist":
+            for i in range (num_local_workers):
+                models.append(cnn_para(weight_decay, num_classes, low_rank_ratios).build_model()) 
+        elif cfg.dataset == "cifar100":
+            for i in range (num_local_workers):
+                models.append(WideResNet28_para(weight_decay, num_classes, low_rank_ratios).build_model()) 
+
         solver = FedPara(num_classes = num_classes,
                          num_workers = cfg.num_workers,
                          average_interval = cfg.average_interval)             
@@ -164,41 +180,62 @@ if __name__ == '__main__':
                         average_interval = cfg.average_interval,
                         quantizer_level = cfg.quantizer_level)
     elif cfg.optimizer == 8:
-        solver = FedPAQ_LUAR(model = models[0],
-                        num_classes = num_classes,
-                        num_workers = cfg.num_workers,
-                        average_interval = cfg.average_interval,
-                        quantizer_level = cfg.quantizer_level)
+        solver = FedOpt(model = models[0],
+                            num_classes = num_classes,
+                            num_workers = cfg.num_workers,
+                            average_interval = cfg.average_interval)
     elif cfg.optimizer == 9:
-        solver = FedDyn(num_classes = num_classes,
+        solver = FedProx(num_classes = num_classes,
+                                num_workers = cfg.num_workers,
+                                average_interval = cfg.average_interval,
+                                mu=cfg.mu)
+    elif cfg.optimizer == 10:
+        solver = FedMut(model = models[0],
+                        num_classes = num_classes,
                         num_workers = cfg.num_workers,
                         average_interval = cfg.average_interval) 
-    elif cfg.optimizer == 10:
-        solver = FedOpt(model = models[0],
+    elif cfg.optimizer == 11:
+        solver = Moon(model = models[0],
                         num_classes = num_classes,
                         num_workers = cfg.num_workers,
-                        average_interval = cfg.average_interval)
-    elif cfg.optimizer == 11:
-        solver = FedProx(num_classes = num_classes,
-                        num_workers = cfg.num_workers,
-                        average_interval = cfg.average_interval,
-                        mu=cfg.mu)   
+                        average_interval = cfg.average_interval)   
     elif cfg.optimizer == 12:
-        solver = FedMut(model = models[0],
+        solver = FedACG(model = models[0],
                         num_classes = num_classes,
                         num_workers = cfg.num_workers,
                         average_interval = cfg.average_interval)
     elif cfg.optimizer == 13:
-        solver = Moon(model = models[0],
+        solver = FedPAQ_LUAR(model = models[0],
                         num_classes = num_classes,
                         num_workers = cfg.num_workers,
-                        average_interval = cfg.average_interval)          
+                        average_interval = cfg.average_interval,
+                        quantizer_level = cfg.quantizer_level)          
     elif cfg.optimizer == 14:
-        solver = FedACG(model = models[0],
+        solver = FedOpt_LUAR(model = models[0],
                         num_classes = num_classes,
                         num_workers = cfg.num_workers,
                         average_interval = cfg.average_interval)          
-    
+    elif cfg.optimizer == 15:
+        solver = FedProx_LUAR(model = models[0],
+                        num_classes = num_classes,
+                        num_workers = cfg.num_workers,
+                        average_interval = cfg.average_interval,
+                        mu=cfg.mu)  
+    elif cfg.optimizer == 16:
+        solver = FedMUT_LUAR(model = models[0],
+                        num_classes = num_classes,
+                        num_workers = cfg.num_workers,
+                        average_interval = cfg.average_interval)  
+    elif cfg.optimizer == 17:
+        solver = Moon_LUAR(model = models[0],
+                        num_classes = num_classes,
+                        num_workers = cfg.num_workers,
+                        average_interval = cfg.average_interval)  
+    elif cfg.optimizer == 18:
+        solver = FedACG_LUAR(model = models[0],
+                        num_classes = num_classes,
+                        num_workers = cfg.num_workers,
+                        average_interval = cfg.average_interval)
     else:
         print ("Invalid optimizer option!\n")
         exit()

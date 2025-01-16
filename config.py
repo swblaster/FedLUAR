@@ -45,7 +45,7 @@ agnews_config = {
 low_rank_ratio = 0.2
 
 # For LBGM
-threshold = 0.99
+threshold = 0.95
 
 # For PruneFL
 reconfiguration_iteration = 50
@@ -62,6 +62,9 @@ reuse_layer = 10
 
 # For FedProx
 mu = 0.001
+
+# For FedACG
+momentum_term = 0.7
 
 num_processes_per_node = 8
 dataset = "cifar10"
@@ -80,13 +83,17 @@ checkpoint = 0
 5: PruneFL
 6: FedPara
 7: FedPAQ
-8: FedPAQ + FedLUAR
-9: FedDyn
-10: FedOpt
-11: FedProx
-12: FedMut
-13: Moon
-14: FedACG
+8: FedOpt
+9: FedProx
+10: FedMut
+11: MOON
+12: FedACG
+13: FedPAQ + LUAR
+14: FedOpt + LUAR
+15: FedProx + LUAR
+16: FedMut + LUAR
+17: MOON + LUAR
+18: FedACG + LUAR
 '''
 optimizer = 2
 
@@ -97,5 +104,3 @@ Federated Learning settings
 '''
 active_ratio = 0.25
 alpha = 0.1
-
-# while pgrep -f "mpirun -n 2 python3 main.py" > /dev/null; do sleep 1; done && mpirun -n 2 python3 main.py

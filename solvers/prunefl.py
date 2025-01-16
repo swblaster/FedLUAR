@@ -190,7 +190,7 @@ class PruneFL:
             if self.rank == 0:
                 print(f"Number of selected parameters (top {(cfg.comm) * 100}%): {len(A)}")
 
-            # Mask 벡터 생성
+            # Generate mask vector
             mask_flat = tf.zeros_like(importance_flat)
             mask_flat = tf.tensor_scatter_nd_update(
                 mask_flat,

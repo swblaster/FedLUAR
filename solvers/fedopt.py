@@ -10,15 +10,10 @@ class FedOpt:
         self.comm = MPI.COMM_WORLD
         self.rank = self.comm.Get_rank()
         self.size = self.comm.Get_size()
-        self.server_lr = 0.9 # 1.2
+        self.server_lr = 0.9
         '''
         FEMNIST: 1.2
         CIFAR10: 0.9
-        <CIFAR10> 
-        0.7: 0.5877
-        0.5:  0.55
-
-        cifar10: {10, 10**0.5, 10**-1.5, 10**-2, 10**-2.5}
         '''
         self.num_classes = num_classes
         self.num_workers = num_workers

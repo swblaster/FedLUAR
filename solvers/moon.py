@@ -17,12 +17,12 @@ class Moon:
         self.num_workers = num_workers
         self.num_local_workers = num_workers // self.size
         self.average_interval = average_interval
-        self.tau = 5 
+        self.tau = 1.5
         '''
         FEMNIST: tau(0.5), mu(1)
-        CIFAR10: tau(10), mu(5)
+        CIFAR10: tau(1.5), mu(1)
         '''
-        self.mu = 10
+        self.mu = 1
         self.last_t_param = []
         self.last_model = models
 
