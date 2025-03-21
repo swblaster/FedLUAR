@@ -36,4 +36,5 @@ We will provide a few key experimental results here once the papers are publishe
  * CIFAR-100
 
 ## Questions / Comments
+ * Jisoo Kim (starprin3@gmail.com)
  * Sunwoo Lee (sunwool@inha.ac.kr)
