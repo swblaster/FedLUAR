@@ -22,7 +22,6 @@ if __name__ == '__main__':
     size = comm.Get_size()
     gpus = tf.config.experimental.list_physical_devices('GPU')
     local_rank = rank % len(gpus)
-    low_rank_ratios = cfg.low_rank_ratio
     
     for gpu in gpus:
         tf.config.experimental.set_memory_growth(gpu, True)
