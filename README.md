@@ -17,7 +17,6 @@ This repository contains the S/W framework used for all the experiments in the b
  3. Run training.
 ```
 mpirun -n 8 python main.py
-mpexec -n 8 python main.py
 ```
 ### Output
 This program evaluates the trained model after every epoch and then outputs the results as follows.

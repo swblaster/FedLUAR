@@ -1,7 +1,9 @@
 '''
 Large-scale Machine Learning Systems Lab. (LMLS lab)
-2023/09/25
+2025/08/07
+Jisoo Kim, M.S.
 Sunwoo Lee, Ph.D.
+<starprin3@inha.edu>
 <sunwool@inha.ac.kr>
 '''
 import numpy as np
