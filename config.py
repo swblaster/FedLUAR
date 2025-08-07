@@ -1,7 +1,7 @@
 '''
 Large-scale Machine Learning Systems Lab. (LMLS lab)
 2025/08/07
-Jisoo Kim, M.S.
+Jisoo Kim
 Sunwoo Lee, Ph.D.
 <starprin3@inha.edu>
 <sunwool@inha.ac.kr>

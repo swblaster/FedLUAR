@@ -4,7 +4,7 @@ This repository contains the S/W framework used for all the experiments in the b
 '[Jisoo Kim, Sungmin Kang, and Sunwoo Lee, Layer-wise Update Recycling for Communication-Efficient Federated Learning]'
 
 ## Software Requirements
- * tensorflow2 (<= 2.15.1)
+ * tensorflow2 (< 2.16.0)
  * tensorflow_datasets
  * python3
  * mpi4py
