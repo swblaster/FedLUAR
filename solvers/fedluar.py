@@ -5,6 +5,7 @@ import time
 import tensorflow as tf
 from tensorflow.keras.optimizers import SGD
 from tensorflow.keras.metrics import Mean
+import config as cfg
 
 class FedLUAR:
     def __init__ (self, model, num_classes, num_workers, average_interval):
@@ -17,7 +18,7 @@ class FedLUAR:
         self.average_interval = average_interval
 
         # Recycle score.
-        self.num_recycling_layers = 12
+        self.num_recycling_layers = cfg.recycling_layers
         self.recycling_layers = []
         self.prev_params = []
         self.prev_updates = []
