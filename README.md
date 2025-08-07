@@ -34,6 +34,8 @@ We will provide a few key experimental results here once the papers are publishe
 ## Supported Datasets
  * CIFAR-10
  * CIFAR-100
+ * FEMNIST
+ * AG News
 
 ## Questions / Comments
  * Jisoo Kim (starprin3@gmail.com)
