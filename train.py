@@ -126,10 +126,10 @@ class framework:
                        " lr: " + str(self.checkpoint.optimizers[0].lr.numpy()) +
                        " validation acc = " + str(global_acc) +
                        " training loss = " + str(global_loss))
-                f = open(f"acc({cfg.optimizer}).txt", "a")
+                f = open(f"acc.txt", "a")
                 f.write(str(global_acc) + "\n")
                 f.close()
-                f = open(f"loss({cfg.optimizer}).txt", "a")
+                f = open(f"loss.txt", "a")
                 f.write(str(global_loss) + "\n")
                 f.close()
 
