@@ -16,7 +16,8 @@ This repository contains the S/W framework used for all the experiments in the b
  2. Put the dataset files in the top directory of this program. The directory name should be the same as `dataset` in config.py.
  3. Run training.
 ```
-mpiexec -n 8 python main.py
+mpirun -n 8 python main.py
+mpexec -n 8 python main.py
 ```
 ### Output
 This program evaluates the trained model after every epoch and then outputs the results as follows.
