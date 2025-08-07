@@ -59,6 +59,7 @@ class cifar:
                     partition.append(value)
                 self.partitions[i] = partition
                 f.close()
+                
         self.partitions = self.comm.bcast(self.partitions, root = 0)
         if self.rank == 0:
             for i in range (len(self.partitions)):

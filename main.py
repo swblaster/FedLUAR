@@ -10,25 +10,8 @@ import config as cfg
 from train import framework
 from mpi4py import MPI
 from solvers.fedavg import FedAvg
-from solvers.fedlama import FedLAMA
 from solvers.fedluar import FedLUAR
-from solvers.LBGM import LBGM
-from solvers.feddropoutavg import FedDropoutAvg
-from solvers.prunefl import PruneFL
-from solvers.fedpaq import FedPAQ
-from solvers.fedopt import FedOpt
-from solvers.fedprox import FedProx
-from solvers.fedmut import FedMut
-from solvers.moon import Moon
-from solvers.fedpara import FedPara
-from solvers.fedpaq_luar import FedPAQ_LUAR
-from solvers.fedacg import FedACG
-from solvers.fedopt_luar import FedOpt_LUAR
-from solvers.fedprox_luar import FedProx_LUAR
-from solvers.fedmut_luar import FedMUT_LUAR
-from solvers.moon_luar import Moon_LUAR
-from solvers.fedacg_luar import FedACG_LUAR
-from model import resnet20, wideresnet28, cnn, distilBert, distilBertLowRank, resnet20_para, cnn_para, WideResNet28_para
+from model import resnet20, wideresnet28, cnn, distilBert
 from feeders.feeder_cifar import cifar
 from feeders.feeder_agnews import agnews
 from feeders.feeder_femnist import federated_emnist
@@ -118,16 +101,16 @@ if __name__ == '__main__':
 
     num_local_workers = cfg.num_workers // size
     models = []
-    if cfg.dataset == "cifar10" and cfg.optimizer != 6:
+    if cfg.dataset == "cifar10":
         for i in range (num_local_workers):
             models.append(resnet20(weight_decay, num_classes).build_model())
-    elif cfg.dataset == "cifar100" and cfg.optimizer != 6:
+    elif cfg.dataset == "cifar100":
         for i in range (num_local_workers):
             models.append(wideresnet28(weight_decay, num_classes).build_model())
-    elif cfg.dataset == "femnist" and cfg.optimizer != 6:
+    elif cfg.dataset == "femnist":
         for i in range (num_local_workers):
             models.append(cnn(weight_decay, num_classes).build_model())
-    elif cfg.dataset == "agnews" and cfg.optimizer != 6:
+    elif cfg.dataset == "agnews":
         for i in range (num_local_workers):
             models.append(distilBert(weight_decay, dataset.sample_length, num_classes).build_model())
     
@@ -136,106 +119,10 @@ if __name__ == '__main__':
                         num_workers = cfg.num_workers,
                         average_interval = cfg.average_interval)
     elif cfg.optimizer == 1:
-        solver = FedLAMA(num_classes = num_classes,
-                         num_workers = cfg.num_workers,
-                         average_interval = cfg.average_interval,
-                         model = models[0],
-                         phi = cfg.phi)
-    elif cfg.optimizer == 2:
         solver = FedLUAR(model = models[0],
                          num_classes = num_classes,
                          num_workers = cfg.num_workers,
                          average_interval = cfg.average_interval)
-    elif cfg.optimizer == 3:
-        solver = LBGM(num_classes = num_classes,
-                      num_workers = cfg.num_workers,
-                      average_interval = cfg.average_interval)
-    elif cfg.optimizer == 4:
-        solver = FedDropoutAvg(num_classes = num_classes,
-                               num_workers = cfg.num_workers,
-                               average_interval = cfg.average_interval)
-    elif cfg.optimizer == 5:
-        solver = PruneFL(num_classes = num_classes,
-                         num_workers = cfg.num_workers,
-                         average_interval = cfg.average_interval)
-    elif cfg.optimizer == 6:
-        models = []
-        if cfg.dataset == "cifar10":
-            for i in range (num_local_workers):
-                models.append(resnet20_para(weight_decay, num_classes, low_rank_ratios).build_model())
-        elif cfg.dataset == "femnist":
-            for i in range (num_local_workers):
-                models.append(cnn_para(weight_decay, num_classes, low_rank_ratios).build_model()) 
-        elif cfg.dataset == "cifar100":
-            for i in range (num_local_workers):
-                models.append(WideResNet28_para(weight_decay, num_classes, low_rank_ratios).build_model()) 
-
-        solver = FedPara(num_classes = num_classes,
-                         num_workers = cfg.num_workers,
-                         average_interval = cfg.average_interval)             
-    elif cfg.optimizer == 7:
-        solver = FedPAQ(model = models[0],
-                        num_classes = num_classes,
-                        num_workers = cfg.num_workers,
-                        average_interval = cfg.average_interval,
-                        quantizer_level = cfg.quantizer_level)
-    elif cfg.optimizer == 8:
-        solver = FedOpt(model = models[0],
-                            num_classes = num_classes,
-                            num_workers = cfg.num_workers,
-                            average_interval = cfg.average_interval)
-    elif cfg.optimizer == 9:
-        solver = FedProx(num_classes = num_classes,
-                                num_workers = cfg.num_workers,
-                                average_interval = cfg.average_interval,
-                                mu=cfg.mu)
-    elif cfg.optimizer == 10:
-        solver = FedMut(model = models[0],
-                        num_classes = num_classes,
-                        num_workers = cfg.num_workers,
-                        average_interval = cfg.average_interval) 
-    elif cfg.optimizer == 11:
-        solver = Moon(model = models[0],
-                        num_classes = num_classes,
-                        num_workers = cfg.num_workers,
-                        average_interval = cfg.average_interval)   
-    elif cfg.optimizer == 12:
-        solver = FedACG(model = models[0],
-                        num_classes = num_classes,
-                        num_workers = cfg.num_workers,
-                        average_interval = cfg.average_interval)
-    elif cfg.optimizer == 13:
-        solver = FedPAQ_LUAR(model = models[0],
-                        num_classes = num_classes,
-                        num_workers = cfg.num_workers,
-                        average_interval = cfg.average_interval,
-                        quantizer_level = cfg.quantizer_level)          
-    elif cfg.optimizer == 14:
-        solver = FedOpt_LUAR(model = models[0],
-                        num_classes = num_classes,
-                        num_workers = cfg.num_workers,
-                        average_interval = cfg.average_interval)          
-    elif cfg.optimizer == 15:
-        solver = FedProx_LUAR(model = models[0],
-                        num_classes = num_classes,
-                        num_workers = cfg.num_workers,
-                        average_interval = cfg.average_interval,
-                        mu=cfg.mu)  
-    elif cfg.optimizer == 16:
-        solver = FedMUT_LUAR(model = models[0],
-                        num_classes = num_classes,
-                        num_workers = cfg.num_workers,
-                        average_interval = cfg.average_interval)  
-    elif cfg.optimizer == 17:
-        solver = Moon_LUAR(model = models[0],
-                        num_classes = num_classes,
-                        num_workers = cfg.num_workers,
-                        average_interval = cfg.average_interval)  
-    elif cfg.optimizer == 18:
-        solver = FedACG_LUAR(model = models[0],
-                        num_classes = num_classes,
-                        num_workers = cfg.num_workers,
-                        average_interval = cfg.average_interval)
     else:
         print ("Invalid optimizer option!\n")
         exit()

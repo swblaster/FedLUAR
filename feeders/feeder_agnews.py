@@ -13,7 +13,6 @@ import numpy as np
 import tensorflow as tf
 from mpi4py import MPI
 from tensorflow.python.data.experimental import AUTOTUNE
-from feeders.fedml import non_iid_partition_with_dirichlet_distribution
 import tensorflow_datasets as tfds
 from tensorflow.keras.preprocessing.text import Tokenizer 
 from tensorflow.keras.preprocessing.sequence import pad_sequences
@@ -84,16 +83,11 @@ class agnews:
         self.num_valid_batches = int(math.floor(num_valid_samples / (self.valid_batch_size)))
         self.num_valid_samples = self.num_valid_batches * self.valid_batch_size
 
-        #self.partitions = non_iid_partition_with_dirichlet_distribution (self.train_label, self.num_clients, 4, self.alpha)
         self.partitions = {}
 
         if self.rank == 0:
             for i in range(self.num_clients):
                 name = "partitions/agnews" + str(num_classes) + "_" + str(i) + ".txt"
-                # f = open(name, "w")
-                # for j in range(len(self.partitions[i])):
-                #     f.write("%d\n" % (self.partitions[i][j]))
-                # f.close()
                 f = open(name, "r")
                 lines = f.readlines()
                 partition = []
