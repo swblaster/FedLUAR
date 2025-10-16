@@ -1,7 +1,7 @@
 
 # FedLUAR
 This repository contains the S/W framework used for all the experiments in the below paper.
-'[Jisoo Kim, Sungmin Kang, and Sunwoo Lee, Layer-wise Update Recycling for Communication-Efficient Federated Learning]'
+'[Jisoo Kim, Sungmin Kang, and Sunwoo Lee, Layer-wise Update Recycling for Communication-Efficient Federated Learning, NeruIPS 2025]'
 
 ## Software Requirements
  * tensorflow2 (< 2.16.0)
